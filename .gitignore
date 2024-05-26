@@ -5,6 +5,7 @@
 
 # dotenv files
 .env
+app.db
 
 # User-specific files
 *.rsuser
