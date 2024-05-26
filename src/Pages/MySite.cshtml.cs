@@ -17,6 +17,9 @@ public class MySiteModel : PageModel
     [BindProperty]
     public List<TrainingSession> TrainingSessions { get; set; } = new();
 
+    [BindProperty]
+    public TrainingSession? UpdateTrainingSession { get; set; }
+
 
     public MySiteModel(
         ILogger<MySiteModel> logger,
@@ -29,13 +32,12 @@ public class MySiteModel : PageModel
     public async Task OnGet()
     {
         TrainingSessions = await _dbContext.TrainingSessions
-            .AsNoTracking()
+            .OrderBy(ts => ts.DueDate)
             .ToListAsync();
     }
 
-    public async Task<ActionResult> OnPostSaveAsync()
+    public async Task<ActionResult> OnPostSaveAsync(Guid trainingSessionId)
     {
-
         // Add code here
         if (!ModelState.IsValid)
         {
@@ -51,7 +53,7 @@ public class MySiteModel : PageModel
         await _dbContext.TrainingSessions.AddAsync(NewTrainingSession);
         await _dbContext.SaveChangesAsync();
 
-        return Page();
+        return RedirectToPage();
     }
 
     public async Task<ActionResult> OnPostDeleteAsync(Guid trainingSessionId)
@@ -75,7 +77,43 @@ public class MySiteModel : PageModel
         _dbContext.TrainingSessions.Remove(trainingSession);
         await _dbContext.SaveChangesAsync();
 
-        return Page();
+        return RedirectToPage(); 
+    }
+
+    public async Task<ActionResult> OnPostUpdateAsync(Guid trainingSessionId)
+    {
+        _logger.LogInformation("Trying to update training session with id {id}", trainingSessionId);
+
+        if (!ModelState.IsValid)
+        {
+            _logger.LogInformation("Model is not valid");
+            LogModelStateErrors();
+            return Page();
+        }
+
+        // assign model to a variable
+        var trainingSession = await _dbContext.TrainingSessions
+            .FirstOrDefaultAsync(ts => ts.TrainingSessionId == trainingSessionId);
+
+        if (trainingSession is null)
+        {
+            _logger.LogInformation("Training session with id {id} not found", trainingSessionId);
+            return Page();
+        }
+
+        if (UpdateTrainingSession is null)
+        {
+            return Page();
+        }
+
+        trainingSession.Title = UpdateTrainingSession.Title;
+        trainingSession.DueDate = UpdateTrainingSession.DueDate;
+
+
+        _dbContext.TrainingSessions.Update(trainingSession);
+        await _dbContext.SaveChangesAsync();
+
+        return RedirectToPage();
     }
 
     private void LogModelStateErrors()
