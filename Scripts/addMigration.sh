@@ -4,4 +4,4 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-dotnet ef migrations add $1 --project src/
+dotnet ef migrations add $1 --project Source/

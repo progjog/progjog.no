@@ -1,1 +1,1 @@
-dotnet watch --project src/
+dotnet watch --project Source/

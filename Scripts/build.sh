@@ -1,1 +1,1 @@
-dotnet build src/
+dotnet build Source/

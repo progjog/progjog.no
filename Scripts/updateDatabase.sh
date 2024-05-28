@@ -1,1 +1,1 @@
-dotnet ef database update --project src/
+dotnet ef database update --project Source/
