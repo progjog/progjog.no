@@ -16,10 +16,10 @@ public class DashboardModel : PageModel
     public TrainingSession? NewTrainingSession { get; set; }
 
     [BindProperty]
-    public List<TrainingSession> TrainingSessions { get; set; } = new();
+    public TrainingSession? UpdateTrainingSession { get; set; }
 
     [BindProperty]
-    public TrainingSession? UpdateTrainingSession { get; set; }
+    public List<TrainingSession> TodaysTrainingSessions { get; set; } = new();
 
 
     public DashboardModel(
@@ -30,11 +30,13 @@ public class DashboardModel : PageModel
         _dbContext = dbContext;
     }
 
-    public async Task OnGet()
+    public async Task<ActionResult> OnGetAsync()
     {
-        TrainingSessions = await _dbContext.TrainingSessions
-            .OrderBy(ts => ts.DueDate)
+        TodaysTrainingSessions = await _dbContext.TrainingSessions
+            .Where(ts => ts.DueDate == DateOnly.FromDateTime(DateTime.UtcNow))
             .ToListAsync();
+
+        return Page();
     }
 
     public async Task<ActionResult> OnPostSaveAsync(Guid trainingSessionId)
