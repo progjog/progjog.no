@@ -6,7 +6,7 @@
 
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTrainingSession">
-    Legg til 
+    Add Session
 </button>
 
 <hr>
@@ -17,7 +17,7 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">New Run Session</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">New Planned Session</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -33,7 +33,7 @@
 
             <div class="form-group">
                 <label asp-for="NewTrainingSession.DueDate"></label>
-                <input asp-for="NewTrainingSession.DueDate" type="date" class="form-control" />
+                <input asp-for="NewTrainingSession.DueDate" type="date" class="form-control" value='@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")' />
                 <span asp-validation-for="NewTrainingSession.DueDate" class="text-danger"></span>
             </div>
 
@@ -49,8 +49,9 @@
   </div>
 </div>
 
+<h1> Todays Planned Sessions </h1>
 
-@foreach (var session in Model.TrainingSessions)
+@foreach (var session in Model.TodaysTrainingSessions)
 {
     <div class="card mb-3">
       <h5 class="card-header">@session.DueDate</h5>
