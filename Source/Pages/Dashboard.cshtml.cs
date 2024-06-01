@@ -1,10 +1,11 @@
+namespace progjog.Pages;
+
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using progjog.Data.Entities;
 using progjog.Data;
 
-namespace progjog.Pages;
 
 public class DashboardModel : PageModel
 {
@@ -41,15 +42,17 @@ public class DashboardModel : PageModel
         // Add code here
         if (!ModelState.IsValid)
         {
+            _logger.LogDebug("Model is not valid");
             return Page();
         }
 
         if (NewTrainingSession is null)
         {
+            _logger.LogDebug("NewTrainingSession is null");
             return Page();
         }
 
-        _logger.LogInformation("Saving new training session");
+        _logger.LogDebug("Trying to save new training session");
         await _dbContext.TrainingSessions.AddAsync(NewTrainingSession);
         await _dbContext.SaveChangesAsync();
 

@@ -6,11 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddIdentity();
 
-
-
 builder.Services.AddRazorPages(options => 
 {
-    options.Conventions.AuthorizePage("/MySite");
+    options.Conventions.AuthorizePage("/Dashboard");
 });
 
 var app = builder.Build();
