@@ -30,27 +30,7 @@ public class CalendarModel : PageModel
     }
 
     public void OnGet()
-    {
-        // var plannedSessions = await _dbContext.TrainingSessions
-          //   .Where(ts => ts.DueDate == DateOnly.FromDateTime(DateTime.UtcNow))
-            // .ToListAsync();
-
-        /*
-        var calendarEvents = new List<CalendarEvent>();
-
-        foreach (var session in plannedSessions)
-        {
-            calendarEvents.Add(new CalendarEvent
-            {
-                Id = session.TrainingSessionId,
-                Title = session.Title,
-                Start = session.DueDate
-            });
-        }
-
-        PlannedSessions = JsonSerializer.Serialize(calendarEvents);
-        */
-    }
+    { }
 
     public async Task<ActionResult> OnPostSaveAsync(Guid trainingSessionId)
     {
@@ -88,17 +68,5 @@ public class CalendarModel : PageModel
         await _dbContext.SaveChangesAsync();
         return RedirectToPage();
     }
-}
-
-
-public class CalendarEvent
-{
-    public Guid Id { get; set; }
-
-    [JsonPropertyName("title")]
-    public string? Title { get; set; }
-
-    [JsonPropertyName("start")]
-    public DateOnly Start { get; set; }
 }
 

@@ -5,6 +5,7 @@ using progjog.Data;
 using progjog.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
+
 public class TrainingSessionService : ITrainingSessionService
 {
     private readonly ApplicationDbContext _dbContext;
