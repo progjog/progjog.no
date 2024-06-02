@@ -3,6 +3,7 @@ namespace progjog;
 using progjog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using progjog.Services;
 
 public static class ConfigureServices
 {
@@ -23,5 +24,10 @@ public static class ConfigureServices
     {
         services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
+    }
+
+    public static void AddTrainingSessionService(this IServiceCollection services)
+    {
+        services.AddScoped<ITrainingSessionService, TrainingSessionService>();
     }
 }

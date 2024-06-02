@@ -1,0 +1,86 @@
+@page
+@model CalendarModel
+@{
+    ViewData["Title"] = "Calendar";
+}
+
+@section Head
+{
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js'></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            themeSystem: 'bootstrap5',
+            selectable: false,
+            events: "/api/TrainingSession",
+
+            select: function(info) {
+                console.log('Selected: ' + info.startStr + ' to ' + info.endStr);
+            },
+
+            dateClick: function(info) {
+                console.log('Clicked on: ' + info.dateStr);
+                // add class show to class modal
+                $("#newTrainingSession").modal("show");
+
+                // add the date to the modal
+                $("#newTrainingSession").find("#NewTrainingSession_DueDate").val(info.dateStr);
+            },
+
+            // no vertical scroll
+            height: 'auto',
+
+            // first day of week monday
+            firstDay: 1,
+        });
+        calendar.render();
+    });
+
+</script>
+
+}
+
+<div id="calendar"></div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="newTrainingSession" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">New Planned Session</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <form method="post">
+
+            <div class="form-group">
+                <label asp-for="NewTrainingSession.Title"></label>
+                <input asp-for="NewTrainingSession.Title" class="form-control" />
+                <span asp-validation-for="NewTrainingSession.Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="NewTrainingSession.DueDate"></label>
+                <input asp-for="NewTrainingSession.DueDate" type="date" class="form-control" value='@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")' />
+                <span asp-validation-for="NewTrainingSession.DueDate" class="text-danger"></span>
+            </div>
+
+            <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+               <button asp-page-handler="Save" type="submit" class="btn btn-primary">Save</button>
+            </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>

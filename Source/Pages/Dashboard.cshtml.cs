@@ -5,12 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using progjog.Data.Entities;
 using progjog.Data;
+using progjog.Services;
 
+
+# warning TODO: remove usage of applicationDBContext, it shouldn't be used directly in controllers (SOC);
 
 public class DashboardModel : PageModel
 {
     private readonly ILogger<DashboardModel> _logger;
+
     private readonly ApplicationDbContext _dbContext;
+    private readonly ITrainingSessionService _trainingSessionService;
 
     [BindProperty]
     public TrainingSession? NewTrainingSession { get; set; }
@@ -24,22 +29,23 @@ public class DashboardModel : PageModel
 
     public DashboardModel(
         ILogger<DashboardModel> logger,
+        ITrainingSessionService trainingSessionService,
         ApplicationDbContext dbContext)
     {
         _logger = logger;
         _dbContext = dbContext;
+        _trainingSessionService = trainingSessionService;
     }
 
     public async Task<ActionResult> OnGetAsync()
     {
-        TodaysTrainingSessions = await _dbContext.TrainingSessions
-            .Where(ts => ts.DueDate == DateOnly.FromDateTime(DateTime.UtcNow))
-            .ToListAsync();
+        TodaysTrainingSessions = await _trainingSessionService
+            .GetTodaysTrainingSessionsForUser(Guid.Empty);
 
         return Page();
     }
 
-    public async Task<ActionResult> OnPostSaveAsync(Guid trainingSessionId)
+    public async Task<ActionResult> OnPostSaveAsync()
     {
         // Add code here
         if (!ModelState.IsValid)
