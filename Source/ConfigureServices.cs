@@ -14,8 +14,10 @@ public static class ConfigureServices
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+        var serverVersion = new MariaDbServerVersion(new Version(10, 5, 23)); 
+
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));
+            options.UseMySql(connectionString, serverVersion));
 
         services.AddDatabaseDeveloperPageExceptionFilter();
     }
