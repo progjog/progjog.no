@@ -14,8 +14,11 @@ public static class ConfigureServices
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+        var serverVersion = 
+            new MySqlServerVersion(ServerVersion.AutoDetect(connectionString));
+
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));
+            options.UseMySql(connectionString, serverVersion));
 
         services.AddDatabaseDeveloperPageExceptionFilter();
     }
