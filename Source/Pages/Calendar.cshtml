@@ -31,6 +31,19 @@
                 $("#newTrainingSession").find("#NewTrainingSession_DueDate").val(info.dateStr);
             },
 
+            eventClick: function(info) {
+                console.log('Clicked on: ' + info.dateStr);
+                console.log("ID: " + info.event.id);
+
+                // add class show to class modal
+                $("#updateTrainingSession").modal("show");
+
+                // add the date to the modal
+                $("#updateTrainingSession").find("#updateTrainingSessionDate").val(info.event.startStr);
+                $("#updateTrainingSession").find("#updateTrainingSessionTitle").val(info.event.title);
+                $("#updateTrainingSession").find("#updateTrainingSessionId").val(info.event.id);
+            },
+
             // no vertical scroll
             height: 'auto',
 
@@ -83,4 +96,46 @@
       </div>
     </div>
   </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="updateTrainingSession" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Update Run Session</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form method="post">
+
+                    <input name="@nameof(Model.UpdateTrainingSessionForm.TrainingSessionId)" asp-for="UpdateTrainingSessionForm.TrainingSessionId" value="" type="hidden" id="updateTrainingSessionId">
+
+                    <div class="form-group">
+                        <label asp-for="UpdateTrainingSessionForm.Title"></label>
+
+                        <input asp-for="UpdateTrainingSessionForm.Title" class="form-control" id="updateTrainingSessionTitle" />
+                        <span asp-validation-for="UpdateTrainingSessionForm.Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="UpdateTrainingSessionForm.DueDate"></label>
+                        <input name="UpdateTrainingSessionForm.DueDate" asp-for="UpdateTrainingSessionForm.DueDate" type="date" class="form-control" id="updateTrainingSessionDate"/>
+                        <span asp-validation-for="UpdateTrainingSessionForm.DueDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button asp-page-handler="Delete" type="submit" class="btn btn-danger">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button asp-page-handler="UpdateTrainingSession" type="submit" class="btn btn-primary">Update</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
 </div>
