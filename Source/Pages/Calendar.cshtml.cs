@@ -1,13 +1,10 @@
 namespace progjog.Pages;
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using progjog.Data.Entities;
 using progjog.Data;
-using progjog.Services;
+using progjog.Forms;
 
 
 #warning TODO: remove usage of applicationDBContext, it shouldn't be used directly in controllers (SOC);
@@ -17,8 +14,10 @@ public class CalendarModel : PageModel
     private readonly ApplicationDbContext _dbContext;
 
     [BindProperty]
-    public TrainingSession? NewTrainingSession { get; set; }
+    public UpdateTrainingSessionForm? UpdateTrainingSessionForm { get; set; }
 
+    [BindProperty]
+    public TrainingSession? NewTrainingSession { get; set; }
 
     public CalendarModel(
             ILogger<CalendarModel> logger,
@@ -54,6 +53,39 @@ public class CalendarModel : PageModel
         return RedirectToPage();
     }
 
+    public async Task<ActionResult> OnPostUpdateTrainingSessionAsync(Guid trainingSessionId)
+    {
+        _logger.LogInformation($"Updating training session with id {trainingSessionId}");
+        _logger.LogInformation($"Title: {UpdateTrainingSessionForm?.Title}");
+        _logger.LogInformation($"DueDate: {UpdateTrainingSessionForm?.DueDate}");
+
+        if (!ModelState.IsValid)
+        {
+            LogModelStateErrors();
+            return RedirectToPage();
+        }
+
+        if (UpdateTrainingSessionForm is null)
+        {
+            _logger.LogInformation("UpdateTrainingSessionForm is null");
+            return RedirectToPage();
+        }
+
+        var trainingSession = await _dbContext.TrainingSessions.FindAsync(trainingSessionId);
+        if (trainingSession is null)
+        {
+            _logger.LogInformation("Training session not found");
+            return RedirectToPage();
+        }
+
+        trainingSession.Title = UpdateTrainingSessionForm.Title;
+        trainingSession.DueDate = UpdateTrainingSessionForm.DueDate;
+
+        _logger.LogInformation("Trying to update training session");
+        await _dbContext.SaveChangesAsync();
+        return RedirectToPage();
+    }
+
     public async Task<ActionResult> OnPostDeleteAsync(Guid trainingSessionId)
     {
         var trainingSession = await _dbContext.TrainingSessions.FindAsync(trainingSessionId);
@@ -67,6 +99,20 @@ public class CalendarModel : PageModel
         _dbContext.TrainingSessions.Remove(trainingSession);
         await _dbContext.SaveChangesAsync();
         return RedirectToPage();
+    }
+
+    private void LogModelStateErrors()
+    {
+        foreach (var state in ModelState)
+        {
+            var key = state.Key;
+            var errors = state.Value.Errors;
+
+            foreach (var error in errors)
+            {
+                _logger.LogError($"Validation error in {key}: {error.ErrorMessage}");
+            }
+        }
     }
 }
 

@@ -16,6 +16,7 @@ public static class ConfigureServices
 
         ServerVersion serverVersion;
 
+#warning Don't use try catch for logic. Juse set the version and the databaseclient in appsettings
         try
         {
             serverVersion = new MySqlServerVersion(ServerVersion.AutoDetect(connectionString));
