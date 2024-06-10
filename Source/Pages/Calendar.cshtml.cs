@@ -31,6 +31,21 @@ public class CalendarModel : PageModel
     public void OnGet()
     { }
 
+    public async Task<ActionResult> OnPostDeleteAsync(Guid trainingSessionId)
+    {
+        var trainingSession = await _dbContext.TrainingSessions.FindAsync(trainingSessionId);
+        if (trainingSession is null)
+        {
+            _logger.LogDebug("Training session not found");
+            return RedirectToPage();
+        }
+
+        _logger.LogDebug("Trying to delete training session");
+        _dbContext.TrainingSessions.Remove(trainingSession);
+        await _dbContext.SaveChangesAsync();
+        return RedirectToPage();
+    }
+
     public async Task<ActionResult> OnPostSaveAsync(Guid trainingSessionId)
     {
         // Add code here
@@ -55,10 +70,6 @@ public class CalendarModel : PageModel
 
     public async Task<ActionResult> OnPostUpdateTrainingSessionAsync(Guid trainingSessionId)
     {
-        _logger.LogInformation($"Updating training session with id {trainingSessionId}");
-        _logger.LogInformation($"Title: {UpdateTrainingSessionForm?.Title}");
-        _logger.LogInformation($"DueDate: {UpdateTrainingSessionForm?.DueDate}");
-
         if (!ModelState.IsValid)
         {
             LogModelStateErrors();
@@ -82,21 +93,6 @@ public class CalendarModel : PageModel
         trainingSession.DueDate = UpdateTrainingSessionForm.DueDate;
 
         _logger.LogInformation("Trying to update training session");
-        await _dbContext.SaveChangesAsync();
-        return RedirectToPage();
-    }
-
-    public async Task<ActionResult> OnPostDeleteAsync(Guid trainingSessionId)
-    {
-        var trainingSession = await _dbContext.TrainingSessions.FindAsync(trainingSessionId);
-        if (trainingSession is null)
-        {
-            _logger.LogDebug("Training session not found");
-            return Page();
-        }
-
-        _logger.LogDebug("Trying to delete training session");
-        _dbContext.TrainingSessions.Remove(trainingSession);
         await _dbContext.SaveChangesAsync();
         return RedirectToPage();
     }
