@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using progjog.Data.Entities;
 using progjog.Data;
-using progjog.Forms;
+using progjog.Models;
 
 
 #warning TODO: remove usage of applicationDBContext, it shouldn't be used directly in controllers (SOC);
@@ -14,10 +14,7 @@ public class CalendarModel : PageModel
     private readonly ApplicationDbContext _dbContext;
 
     [BindProperty]
-    public UpdateTrainingSessionForm? UpdateTrainingSessionForm { get; set; }
-
-    [BindProperty]
-    public TrainingSession? NewTrainingSession { get; set; }
+    public required TrainingSessionModel TrainingSessionModel { get; set; } 
 
     public CalendarModel(
             ILogger<CalendarModel> logger,
@@ -33,7 +30,14 @@ public class CalendarModel : PageModel
 
     public async Task<ActionResult> OnPostDeleteAsync(Guid trainingSessionId)
     {
+        if (trainingSessionId == Guid.Empty)
+        {
+            _logger.LogDebug("Training session id is empty");
+            return RedirectToPage();
+        }
+
         var trainingSession = await _dbContext.TrainingSessions.FindAsync(trainingSessionId);
+
         if (trainingSession is null)
         {
             _logger.LogDebug("Training session not found");
@@ -42,55 +46,69 @@ public class CalendarModel : PageModel
 
         _logger.LogDebug("Trying to delete training session");
         _dbContext.TrainingSessions.Remove(trainingSession);
+
         await _dbContext.SaveChangesAsync();
         return RedirectToPage();
     }
 
-    public async Task<ActionResult> OnPostSaveAsync(Guid trainingSessionId)
+    public async Task<ActionResult> OnPostSaveAsync()
     {
-        // Add code here
+#warning TODO: when modelstate is invalid, give feedback to client
         if (!ModelState.IsValid)
         {
-            _logger.LogDebug("Model is not valid");
+            LogModelStateErrors();
             return Page();
         }
 
-        if (NewTrainingSession is null)
+        if (TrainingSessionModel is null)
         {
-            _logger.LogDebug("NewTrainingSession is null");
+            _logger.LogInformation($"{nameof(TrainingSessionModel)} is null");
             return Page();
         }
 
-        _logger.LogDebug("Trying to save new training session");
-        await _dbContext.TrainingSessions.AddAsync(NewTrainingSession);
+        var trainingSession = new TrainingSession
+        {
+            Title = TrainingSessionModel.Title,
+            DueDate = TrainingSessionModel.DueDate
+        };
+
+#warning TODO: use a mapper to map the form to the entity
+        await _dbContext.TrainingSessions.AddAsync(trainingSession);
         await _dbContext.SaveChangesAsync();
 
         return RedirectToPage();
     }
 
-    public async Task<ActionResult> OnPostUpdateTrainingSessionAsync(Guid trainingSessionId)
+    public async Task<ActionResult> OnPostUpdateAsync(Guid trainingSessionId)
     {
+        if (trainingSessionId == Guid.Empty)
+        {
+            _logger.LogInformation("Training session id is empty");
+            return RedirectToPage();
+        }
+
         if (!ModelState.IsValid)
         {
             LogModelStateErrors();
             return RedirectToPage();
         }
 
-        if (UpdateTrainingSessionForm is null)
+        if (TrainingSessionModel is null)
         {
-            _logger.LogInformation("UpdateTrainingSessionForm is null");
+            _logger.LogInformation("TrainingSessionModel is null");
             return RedirectToPage();
         }
 
         var trainingSession = await _dbContext.TrainingSessions.FindAsync(trainingSessionId);
+
         if (trainingSession is null)
         {
             _logger.LogInformation("Training session not found");
             return RedirectToPage();
         }
 
-        trainingSession.Title = UpdateTrainingSessionForm.Title;
-        trainingSession.DueDate = UpdateTrainingSessionForm.DueDate;
+        trainingSession.Title = TrainingSessionModel.Title;
+        trainingSession.DueDate = TrainingSessionModel.DueDate;
 
         _logger.LogInformation("Trying to update training session");
         await _dbContext.SaveChangesAsync();
