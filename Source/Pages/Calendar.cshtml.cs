@@ -1,6 +1,5 @@
 namespace progjog.Pages;
 
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using progjog.Data.Entities;
